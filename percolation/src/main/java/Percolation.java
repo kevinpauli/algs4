@@ -1,10 +1,10 @@
 public class Percolation {
 
-	WeightedQuickUnionUF uf;
-	int n;
-	int virtualTop;
-	int virtualBottom;
-	boolean[] siteOpen;
+	private WeightedQuickUnionUF uf;
+	private int n;
+	private int virtualTop;
+	private int virtualBottom;
+	private boolean[] siteOpen;
 
 	// create N-by-N grid, with all sites blocked
 	public Percolation(int n) {
