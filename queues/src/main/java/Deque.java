@@ -3,14 +3,15 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-	private Node first = null;
-	private Node last = null;
+	private Node first = new Node();
+	private Node last = new Node();
 
 	private int size = 0;
 
 	// construct an empty deque
 	public Deque() {
-
+		first.next = last;
+		last.prev = first;
 	}
 
 	// is the deque empty?
@@ -27,16 +28,11 @@ public class Deque<Item> implements Iterable<Item> {
 	public void addFirst(Item item) {
 		if (item == null)
 			throw new NullPointerException();
-		final Node node = new Node(item);
-		node.next = first;
-		if (first != null)
-			first.prev = node;
-		first = node;
-		
-		// if there is no last, the node is also the last
-		if (last == null)
-			last = node;
-			
+		final Node value = new Node(item);
+		value.prev = first;
+		value.next = first.next;
+		first.next.prev = value;
+		first.next = value;
 		size++;
 	}
 
@@ -44,52 +40,83 @@ public class Deque<Item> implements Iterable<Item> {
 	public void addLast(Item item) {
 		if (item == null)
 			throw new NullPointerException();
+		final Node value = new Node(item);
+		value.next = last;
+		value.prev = last.prev;
+		last.prev.next = value;
+		last.prev = value;
+		size++;
 	}
 
 	// delete and return the item at the front
 	public Item removeFirst() {
-		if (first == null) 
+		if (size == 0) 
 			throw new NoSuchElementException();
-		final Node toRemove = first;
-		final Node newFirst = first.next;
-		if (newFirst != null)
-			newFirst.prev = null;
-		first = newFirst;
+		final Node value = first.next;
+		first.next = value.next;
+		value.next.prev = value.prev;
+		value.prev = null;
+		value.next = null;
+		final Item item = value.value;
+		value.value = null;
 		size--;
-		toRemove.next = null;
-		return toRemove.value;
+		return item;
 	}
 
 	// delete and return the item at the end
 	public Item removeLast() {
-		if (last == null) 
+		if (size == 0) 
 			throw new NoSuchElementException();
-		final Node toRemove = last;
-		final Node newLast = last.prev;
-		if (newLast != null)
-			newLast.next = null;
-		first = newLast;
+		final Node value = last.prev;
+		last.prev = value.prev;
+		value.prev.next = value.next;
+		value.prev = null;
+		value.next = null;
+		final Item item = value.value;
+		value.value = null;
 		size--;
-		toRemove.prev = null;
-		return toRemove.value;
+		return item;
 	}
 
 	// return an iterator over items in order from front to end
 	public Iterator<Item> iterator() {
-		return null;
+		return new Iterator<Item>() {
+			
+			private Node current = first;
+
+			@Override
+			public boolean hasNext() {
+				return current.next != last;
+			}
+
+			@Override
+			public Item next() {
+				if (!hasNext())
+					throw new NoSuchElementException();
+				current = current.next;
+				return current.value;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}} ;
 
 	}
 
 	private class Node {
+		Node() {
+		}
+		
 		Node(Item value) {
 			this.value = value;
 		}
-
+		
 		Item value;
 		Node prev;
 		Node next;
 	}
-
+	
 	// unit testing
 	public static void main(String[] args) {
 	}
